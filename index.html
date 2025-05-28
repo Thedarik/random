@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="uz">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IT Park Jizzakh - Kartochkalar</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #f5f5f5;
+            padding: 0;
+            margin: 0;
+        }
+
+        .container {
+            width: 210mm;
+            height: 297mm;
+            background: white;
+            margin: 0 auto;
+            padding: 0;
+            display: grid;
+            grid-template-columns: repeat(4, 52.5mm);
+            grid-template-rows: repeat(6, 49.5mm);
+            gap: 0;
+            border-collapse: collapse;
+        }
+
+        .card {
+            border: 2px solid #333;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2mm;
+            position: relative;
+            margin: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .logo-container {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .logo {
+            width: 130px;
+            height: 40px;
+        }
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .number {
+            font-family: 'Anton', sans-serif;
+            font-size: 38px;
+            font-weight: 900;
+            color: #000;
+            text-shadow:
+                1px 0 black,
+                0 1px black,
+                -1px 0 black,
+                0 -1px black;
+        }
+
+
+        .controls {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border: 2px solid #7CB342;
+            z-index: 1000;
+        }
+
+        .input-group {
+            margin-bottom: 10px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .input-group input {
+            width: 100px;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            font-size: 14px;
+        }
+
+        .generate-btn {
+            background: #7CB342;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+            width: 100%;
+        }
+
+        .generate-btn:hover {
+            background: #689F38;
+        }
+
+        .download-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #7CB342;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+
+        .download-btn:hover {
+            background: #689F38;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+                margin: 0;
+            }
+
+            .container {
+                width: 210mm;
+                height: 297mm;
+                margin: 0;
+                padding: 0;
+                box-shadow: none;
+            }
+
+            .download-btn,
+            .controls {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="controls">
+        <div class="input-group">
+            <label for="startNumber">Boshlanish raqami:</label>
+            <input type="number" id="startNumber" value="1" min="1" max="999">
+        </div>
+        <div class="input-group">
+            <label for="endNumber">Tugash raqami:</label>
+            <input type="number" id="endNumber" value="24" min="1" max="999">
+        </div>
+        <button class="generate-btn" onclick="generateCards()">Kartochkalar yaratish</button>
+    </div>
+    <button class="download-btn" onclick="downloadPNG()">🖼️ PNG sifatida yuklab olish</button>
+    <button class="download-btn" onclick="downloadHTML()" style="top: 70px;">📄 HTML sifatida yuklab olish</button>
+    <div class="container" id="cardContainer">
+        <!-- Kartochkalar JavaScript bilan yaratiladi -->
+    </div>
+
+    <script>
+        function generateCards() {
+            const startNumber = parseInt(document.getElementById('startNumber').value);
+            const endNumber = parseInt(document.getElementById('endNumber').value);
+            const container = document.getElementById('cardContainer');
+
+            // Kiritish ma'lumotlarni tekshirish
+            if (isNaN(startNumber) || isNaN(endNumber)) {
+                alert('Iltimos, boshlanish va tugash raqamlarini kiriting.');
+                return;
+            }
+            if (startNumber > endNumber) {
+                alert('Boshlanish raqami tugash raqamidan kichik bo‘lishi kerak.');
+                return;
+            }
+            if (endNumber - startNumber + 1 > 24) {
+                alert('Maksimal 24 ta kartochka yaratish mumkin.');
+                return;
+            }
+
+            // Mavjud kartochkalarni tozalash
+            container.innerHTML = '';
+
+            // Kartochkalarni yaratish
+            for (let i = startNumber; i <= endNumber; i++) {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <div class="logo-container">
+                        <div class="logo">
+                            <img src="assets/logo.png" alt="Logo 1">
+                        </div>
+                    </div>
+                    <div class="number">${i.toString().padStart(3, '0')}</div>
+                `;
+                container.appendChild(card);
+            }
+        }
+
+        function downloadPNG() {
+            const container = document.querySelector('.container');
+
+            if (container.children.length === 0) {
+                alert('Iltimos, avval kartochkalarni yarating.');
+                return;
+            }
+
+            html2canvas(container, {
+                scale: 2,
+                useCORS: true,
+                backgroundColor: null
+            }).then(canvas => {
+                // A4 formatda bo'sh sahifa yaratamiz
+                const a4Width = 2480; // px
+                const a4Height = 3508; // px
+                const padding = 100; // px
+
+                // Yangi canvas (oq sahifa)
+                const a4Canvas = document.createElement('canvas');
+                a4Canvas.width = a4Width;
+                a4Canvas.height = a4Height;
+
+                const ctx = a4Canvas.getContext('2d');
+
+                // Oq fon
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, a4Width, a4Height);
+
+                // Kartochkani markazga joylashtirish
+                const scale = Math.min(
+                    (a4Width - padding * 2) / canvas.width,
+                    (a4Height - padding * 2) / canvas.height
+                );
+
+                const x = (a4Width - canvas.width * scale) / 2;
+                const y = (a4Height - canvas.height * scale) / 2;
+
+                ctx.drawImage(canvas, x, y, canvas.width * scale, canvas.height * scale);
+
+                // Yuklash
+                const link = document.createElement('a');
+                link.download = 'IT_Park_Jizzakh_Cards_A4.png';
+                link.href = a4Canvas.toDataURL('image/png');
+                link.click();
+            }).catch(error => {
+                console.error('PNG yuklab olishda xato:', error);
+                alert('Xatolik yuz berdi. Iltimos, sahifa to‘liq yuklanganligini tekshiring.');
+            });
+        }
+
+
+        function downloadHTML() {
+            const element = document.documentElement;
+            const htmlContent = element.outerHTML;
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'IT_Park_Jizzakh_Cards.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+
+</html>
